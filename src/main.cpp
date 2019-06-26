@@ -1,20 +1,10 @@
 #define SDL_MAIN_HANDLED
-#include "SDL2/SDL.h"
+
+#include "init/windowkernel.cpp"
 
 int main(int argv, char** args){
+    std::cout << "Erreur d'initialisation de GLEW : " << std::endl;
+    WinKernel win(500,500);
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0 )
-    {
-        return -1;
-    }
-    //Crée la fenêtre SDL en taille maximisé et renvoie son pointeur
-    SDL_Window* windowP = SDL_CreateWindow("",SDL_WINDOWPOS_UNDEFINED,
-                                                            SDL_WINDOWPOS_UNDEFINED,
-                                                            640,
-                                                            480,
-                                                            SDL_WINDOW_MAXIMIZED);
-
-    SDL_DestroyWindow(windowP);
-    SDL_Quit();
     return 0;
 }

@@ -4,34 +4,66 @@
 #include <GL/glew.h>
 
 class WinKernel{
+    
     public:
-    WinKernel(int width, int height){
+    WinKernel(int width, int height) : status(1){
         _win = initWindow(); // Default load
-        initGLRenderer();
+        if(_win != NULL){
+            if(!initGLRenderer()){
+                status = 0;
+            }
+        }else
+        {
+            status = 0;
+        }
+        
     }
     ~WinKernel(){
         SDL_GL_DeleteContext(_gl_context);
         SDL_DestroyWindow(_win);
         SDL_Quit();
     }
+    int launch(){
+        bool isRunning = true;
+        float i = 0.0f;
+        SDL_Event event;
+        if(status){
+            while(isRunning) {
+                // Gestion des évènements
+
+                SDL_WaitEvent(&event);
+                    
+                if(event.window.event == SDL_WINDOWEVENT_CLOSE){
+                    isRunning = false;
+                }
+                glClear(GL_COLOR_BUFFER_BIT);
+                glClearColor(1.0f,i,0.0f,1.0f);
+                SDL_GL_SwapWindow(_win);
+                i+=0.01f;
+                
+            }
+            
+        }
+    }
+    private:
+
     int errMemoryUnalloc(int sizeByte){
         //On affiche un message d'erreur informant d'une erreur d'allocation dynamique
         fprintf(stderr, "! Allocation Bound Error :/ -> Cannot allocate %d bytes", sizeByte);
         return 0;
     }
-
-    private:
-
     SDL_Window* initWindow(){
         //Vérifie l'initialisation du module vidéo (et audio) de SDL.
         //Le cas échant fermera l'application
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0 )
         {
             std::cerr << "Window Initialisation Error :/ ->" << SDL_GetError() << std::endl;
+            status = 0;
             return NULL;
         }
+
         //Crée la fenêtre SDL en taille maximisé et renvoie son pointeur
-        SDL_Window* windowP = SDL_CreateWindow("",SDL_WINDOWPOS_UNDEFINED,
+        SDL_Window* windowP = SDL_CreateWindow("Piwel Game Creator indev",SDL_WINDOWPOS_UNDEFINED,
                                                                 SDL_WINDOWPOS_UNDEFINED,
                                                                 640,
                                                                 480,
@@ -45,9 +77,7 @@ class WinKernel{
         //On renvoie le pointeur de la fênetre
         return windowP;
     }
-    void initGLRenderer(){
-     
-        std::cout << "Erreur d'initialisation de GLEW : " << std::endl;
+    int initGLRenderer(){
         
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -60,25 +90,12 @@ class WinKernel{
         GLenum initialisationGLEW( glewInit() );
         if(initialisationGLEW != GLEW_OK)
         {
-            // On affiche l'erreur grâce à la fonction : glewGetErrorString(GLenum code)
-
             std::cout << "Erreur d'initialisation de GLEW : " << glewGetErrorString(initialisationGLEW) << std::endl;
-
-
-            // On quitte la SDL
-    
-            SDL_GL_DeleteContext(_gl_context);
-            SDL_DestroyWindow(_win);
-           SDL_Quit();
-           return;
+            return 0;
         }
-
-        glClearColor ( 1.0, 0.0, 0.0, 1.0 );
-        glClear ( GL_COLOR_BUFFER_BIT );
-        SDL_GL_SwapWindow(_win);
-        SDL_Delay(2000);
+        return 1;
     }
-
     SDL_Window* _win;
     SDL_GLContext _gl_context;
+    int status;
 };
